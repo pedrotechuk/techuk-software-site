@@ -29,6 +29,26 @@ O site não usa banco de dados. O Railway constrói a imagem com o `Dockerfile` 
 3. Crie no DNS os registros que o Railway mostrar (CNAME para `www`; para o domínio raiz use ALIAS/ANAME ou CNAME flattening, ou o IP indicado).
 4. Aguarde o certificado HTTPS (automático). Depois ajuste `APP_URL` para `https://techuksoftware.com.br` e reimplante.
 
+## Sistema de gestão no mesmo domínio
+Decisão: a landing e o sistema de gestão são **serviços separados**, cada um em seu subdomínio.
+
+| Endereço | Serviço |
+|---|---|
+| `techuksoftware.com.br` e `www` | esta landing (serviço Railway próprio) |
+| `app.techuksoftware.com.br` (sugestão) | sistema de gestão (outro serviço Railway) |
+
+Por quê:
+- Sessão, login e cookies do sistema ficam isolados do consentimento de cookies e do GA4/Pixel da landing.
+- Cada serviço mantém seus próprios cabeçalhos de segurança (`SecurityHeaders` aqui).
+- Deploy e falhas independentes: se o sistema cair, a página de vendas continua no ar.
+
+Como fazer:
+1. Crie um segundo serviço no mesmo projeto Railway para o sistema.
+2. Em **Custom Domain** desse serviço, informe `app.techuksoftware.com.br` e crie o CNAME indicado no DNS.
+3. Na landing, aponte o link "Entrar" (quando existir) para esse endereço.
+
+Alternativa não recomendada: servir tudo em `techuksoftware.com.br/app` exige um proxy reverso (nginx) na frente dos dois e mais manutenção, sem ganho real.
+
 ## 5. Conferir
 - `https://SEU-DOMINIO/up` responde 200.
 - `https://SEU-DOMINIO/sitemap.xml` e `/robots.txt` mostram o domínio correto.
